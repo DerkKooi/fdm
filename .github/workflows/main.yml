@@ -1,0 +1,47 @@
+name: build and run tests
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@master
+    - name: Setup conda
+      uses: s-weigand/setup-conda@v1
+      with:
+        update-conda: true
+        activate-conda: true
+        python-version: 3.7
+        conda-channels: anaconda, conda-forge, pyscf, intel, theochem
+    - run: conda --version
+    - run: which python
+      
+    - run: sudo apt-get install -y libomp5 libomp-dev
+    - run: conda install numpy cython numba mkl libint=2.0.3 pyscf=1.7.0
+    - run: conda install gbasis iodata 
+    - name: Install the package
+      run: pip install .[numba,pyscf]
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Test imports
+      run: python tests/test_imports.py
+    - name: Run examples
+      run: python examples/example_He.py
+    
+    - name: Uninstall the package
+      run: pip uninstall fdm -y
+    - name: Install the package (parallel)
+      run: python setup.py install parallel
+    - name: Test imports
+      run: python tests/test_imports.py
+    - name: Run examples
+      run: python examples/example_He.py
