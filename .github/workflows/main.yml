@@ -15,13 +15,14 @@ jobs:
         update-conda: true
         activate-conda: true
         python-version: 3.7
-        conda-channels: anaconda, conda-forge, pyscf, intel, theochem
+        conda-channels: anaconda, conda-forge, pyscf, intel
     - run: conda --version
     - run: which python
       
     - run: sudo apt-get install -y libomp5 libomp-dev
-    - run: conda install numpy cython numba mkl libint=2.0.3 pyscf=1.7.0
-    - run: conda install gbasis iodata 
+    - run: conda install numpy cython numba mkl pyscf=1.7.0
+    - name: Install gbasis
+      run: git clone https://github.com/theochem/gbasis.git; cd gbasis; pip install --user -e .[dev]; cd ..
     - name: Install the package
       run: pip install .[numba,pyscf]
     - name: Lint with flake8
