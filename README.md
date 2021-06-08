@@ -6,16 +6,15 @@ A python package to calculate dispersion C6 coefficients according to the method
 - Numpy
 - Scipy
 - Cython
-- Optional: pyscf, HORTON 2 gbasis and iodata (for using the pyscf_horton submodule)
+- Optional: pyscf, HORTON 3 gbasis (for using the pyscf_horton submodule)
 - Optional: numba (for using the numba submodule)
 
 ## Setup:
 
-If required, install HORTON 2 gbasis and iodata via conda:
-- conda install -c theochem gbasis iodata libint=2.0.3
-
-Install pyscf via conda:
+If required, install pyscf via conda:
 - conda install -c pyscf pyscf
+
+If required, install horton gbasis via the instructions at https://github.com/theochem/gbasis .
 
 If required, get numba via pip or conda.
 
@@ -43,12 +42,13 @@ or manually remove package if installed via setup.py.
 
 ## References
 1. D.P. Kooi and P. Gori-Giorgi, 2019. A variational approach to London dispersion interactions without density distortion. J. Phys. Chem. Lett., 10(7), pp. 1537-1541.
-2. D.P. Kooi, T. Weckman, and P. Gori-Giorgi, 2020. Dispersion without many-body density distortion: Assessment on atoms and small molecules. arXiv preprint arXiv:2002.08708.
+2. D.P. Kooi and P. Gori-Giorgi, 2020. London dispersion forces without density distortion: a path to first principles inclusion in density functional theory. Faraday Discussions, 224, pp. 145-165.
+3. D.P. Kooi, T. Weckman, and P. Gori-Giorgi, 2021. Dispersion without many-body density distortion: Assessment on atoms and small molecules. J. Chem. Theory Comput., 17(4), pp. 2283-2293.
 
 ## License
 Fixed Diagonal Matrices (FDM), a python package to calculate dispersion C6 coefficients.
 
-Copyright (C) 2020  Derk Kooi
+Copyright (C) 2021  Derk Kooi
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

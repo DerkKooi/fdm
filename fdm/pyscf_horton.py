@@ -440,3 +440,76 @@ def compute_multipole_ROHF(nelec, nmax, mo_coeff, gobasis, center=np.array([0.,0
 
     # print("\n Computed xyz and xyz2 ")
     return xyz, xyz2
+
+def compute_multipole_UHF(nelec, nmax, mo_coeff, gobasis, center=np.array([0.,0.,0.]), safe=False):
+
+    if type(gobasis) == 'tuple':
+        gobasis = gobasis[1]
+
+    #Build overlap matrix Smat
+    Smat = overlap.overlap_integral(gobasis)
+
+    #Extract number of basis states from overlap matrix
+    nbasis = Smat.shape[0]
+
+    #Extract separately number of alpha and beta electrons
+    neleca, nelecb = nelec
+
+    #See above, we don't need to calculate xyz2 up to nmax, but only halfnmax
+    halfnmax = np.ceil(nmax/2).astype(np.int)
+
+    momentlist = np.zeros((nmax**3, 3 ), dtype=np.int64)
+    n = 0
+    for i in range(nmax):
+        for j in range(nmax):
+            for k in range(nmax):
+                momentlist[n,:] = [i, j, k]
+                n += 1
+    xyzmat = moment.moment_integral(gobasis, center, momentlist).transpose(2,0,1).reshape(nmax,nmax,nmax,nbasis,nbasis)
+    #AO to MO transform
+    assert np.allclose(xyzmat[0,0,0], Smat)
+    xyzmatMO_alpha = np.einsum('ji,abcjk,kl->abcil',mo_coeff[0],xyzmat,mo_coeff[0],optimize=True)
+    xyzmatMO_beta = np.einsum('ji,abcjk,kl->abcil',mo_coeff[1],xyzmat,mo_coeff[1],optimize=True)
+    xyz = np.einsum('abcpp->abc',xyzmatMO_alpha[:,:,:,:neleca,:neleca],optimize=True)+np.einsum('abcpp',xyzmatMO_beta[:,:,:,:nelecb,:nelecb],optimize=True)
+    #Two-liner for xyz2
+    xyz2 = np.einsum('ijkab,lmnab->ijklmn',xyzmatMO_alpha[0:halfnmax,0:halfnmax,0:halfnmax,:neleca,:neleca],xyzmatMO_alpha[0:halfnmax,0:halfnmax,0:halfnmax,:neleca,:neleca],optimize=True)
+    xyz2 += np.einsum('ijkab,lmnab->ijklmn',xyzmatMO_beta[0:halfnmax,0:halfnmax,0:halfnmax,:nelecb,:nelecb],xyzmatMO_beta[0:halfnmax,0:halfnmax,0:halfnmax,:nelecb,:nelecb],optimize=True)
+
+    #print("\n Computed xyz and xyz2 ")
+    return xyz, xyz2
+
+def compute_multipole_UHF_dm(nelec, nmax, dm, gobasis, center=np.array([0.,0.,0.]), safe=False):
+
+    if type(gobasis) == 'tuple':
+        gobasis = gobasis[1]
+
+    #Build overlap matrix Smat
+    Smat = overlap.overlap_integral(gobasis)
+
+    #Extract number of basis states from overlap matrix
+    nbasis = Smat.shape[0]
+
+    #Extract separately number of alpha and beta electrons
+    neleca, nelecb = nelec
+
+    #See above, we don't need to calculate xyz2 up to nmax, but only halfnmax
+    halfnmax = np.ceil(nmax/2).astype(np.int)
+
+    momentlist = np.zeros((nmax**3, 3 ), dtype=np.int64)
+    n = 0
+    for i in range(nmax):
+        for j in range(nmax):
+            for k in range(nmax):
+                momentlist[n,:] = [i, j, k]
+                n += 1
+    xyzmat = moment.moment_integral(gobasis, center, momentlist).transpose(2,0,1).reshape(nmax,nmax,nmax,nbasis,nbasis)
+    #AO to MO transform
+    assert np.allclose(xyzmat[0,0,0], Smat)
+
+    xyz = np.einsum('pq,abcpq->abc',dm[0]+dm[1],xyzmat[:,:,:,:,:],optimize=True)
+    #Two-liner for xyz2
+    xyz2 = np.einsum('pq,ijkpr,rs,lmnqs->ijklmn',dm[0],xyzmat[0:halfnmax,0:halfnmax,0:halfnmax,:,:],dm[0],xyzmat[0:halfnmax,0:halfnmax,0:halfnmax,:,:],optimize=True)
+    xyz2 += np.einsum('pq,ijkpr,rs,lmnqs->ijklmn',dm[1],xyzmat[0:halfnmax,0:halfnmax,0:halfnmax,:,:],dm[1],xyzmat[0:halfnmax,0:halfnmax,0:halfnmax,:,:],optimize=True)
+
+    #print("\n Computed xyz and xyz2 ")
+    return xyz, xyz2
