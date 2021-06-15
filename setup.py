@@ -15,7 +15,6 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import os
 import sys
 
 import setuptools
@@ -37,8 +36,8 @@ if "parallel" in sys.argv:
     print('Compiling for parallel usage')
     ext_modules.append(Extension("fdm.cython_parallel",
         ["fdm/cython_parallel.pyx"],
-        extra_compile_args=['-fopenmp', '-lomp'],
-        extra_link_args=['-fopenmp', '-lomp']))
+        extra_compile_args=['-fopenmp'],
+        extra_link_args=['-fopenmp']))
     sys.argv.remove('parallel')
     
 
@@ -67,7 +66,7 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.7',
+    python_requires='>=3.6.7',
     install_requires=[
           'numpy', 
           'scipy',

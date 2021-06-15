@@ -18,9 +18,13 @@ jobs:
         conda-channels: anaconda, conda-forge, pyscf, intel
     - run: conda --version
     - run: which python
-      
-    - run: sudo apt-get install -y libomp5 libomp-dev
-    - run: conda install numpy cython numba mkl pyscf=1.7.0
+    
+    # OMP already installed in new image
+    #- run: sudo apt-get install -y libomp-dev
+    - run: sudo apt-get install -y libhdf5-serial-dev
+    - run: pip install --no-binary=h5py h5py
+    - run: conda install numpy cython numba mkl openmp
+    - run: pip install pyscf
     - name: Install gbasis
       run: git clone https://github.com/theochem/gbasis.git; cd gbasis; pip install --user -e .[dev]; cd ..
     - name: Install the package
